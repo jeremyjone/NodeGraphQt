@@ -4,11 +4,8 @@ from ..widgets.port import PortItem
 
 class PortPlugin(object):
 
-    NODE = None
-
-    def __init__(self, node=None, port=PortItem()):
-        if node:
-            self.NODE = node
+    def __init__(self, node, port=PortItem()):
+        self._node = node
         self._port_item = port
 
     def __repr__(self):
@@ -53,7 +50,7 @@ class PortPlugin(object):
         Returns:
             BlueprintNodeGraph.Node: node object.
         """
-        return self.NODE
+        return self._node
 
     def type(self):
         """
