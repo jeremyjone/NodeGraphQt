@@ -4,9 +4,9 @@ from PySide2 import QtCore, QtWidgets
 from NodeGraphQt import NodeGraphWidget, Node
 
 # import example nodes from the "nodes" package
-from NodeGraphQt.nodes import simple_nodes
-from NodeGraphQt.nodes import text_input_node
-from NodeGraphQt.nodes import menu_node
+from example.nodes import simple_nodes
+from example.nodes import text_input_node
+from example.nodes import menu_node
 
 
 class NodeGraph(NodeGraphWidget):
@@ -50,7 +50,7 @@ NODES_TO_REGISTER = [MyNode,
                      simple_nodes.FooNode,
                      simple_nodes.BarNode,
                      text_input_node.TextInputNode
-                    ]
+                     ]
 
 
 if __name__ == '__main__':

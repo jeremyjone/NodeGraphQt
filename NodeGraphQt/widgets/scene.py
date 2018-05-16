@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from .constants import VIEWER_BG_COLOR, VIEWER_GRID_OVERLAY, VIEWER_GRID_COLOR

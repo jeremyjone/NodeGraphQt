@@ -154,20 +154,6 @@ class NodePlugin(object):
         """
         self.item.setSelected(selected)
 
-    # def add_property(self, name, value):
-    #     """
-    #     adds new property to the node.
-    #
-    #     Args:
-    #         name (str): name of the attribute.
-    #         value (str, int, float): data
-    #     """
-    #     if not isinstance(value, (str, int, float)):
-    #         raise TypeError('value must be of type (String, Integer, Float)')
-    #     elif name in self.item.properties.keys():
-    #         raise KeyError('"{}" property already exists.'.format(name))
-    #     self.item.add_property(name, value)
-
     def properties(self):
         """
         Returns all the node properties.
