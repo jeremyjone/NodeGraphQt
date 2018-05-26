@@ -215,18 +215,6 @@ class NodeBase(object):
             self._node.set_item_property(name, value)
         self._model.set_property(name, value)
 
-    def has_property(self, name):
-        """
-        Check if node property exists.
-
-        Args:
-            name (str): name of the node.
-
-        Returns:
-            bool: true if property name exists in the Node.
-        """
-        return self._model.has_property(name)
-
     def set_x_pos(self, x=0.0):
         """
         Set the node horizontal X position in the node graph.

@@ -52,6 +52,16 @@ class BaseItem(QtWidgets.QGraphicsItem):
         self._properties['pos'] = (float(self.scenePos().x()),
                                    float(self.scenePos().y()))
 
+    def viewer(self):
+        """
+        return the main viewer.
+
+        Returns:
+            NodeGraphQt.widgets.viewer.NodeViewer: viewer object.
+        """
+        if self.scene():
+            return self.scene().viewer()
+
     def pre_init(self, viewer, pos=None):
         """
         Called before node item has been added into the scene.
@@ -194,21 +204,11 @@ class BaseItem(QtWidgets.QGraphicsItem):
 
     @name.setter
     def name(self, name=''):
-        if self.scene():
-            viewer = self.scene().viewer()
+        viewer = self.viewer()
+        if viewer:
             name = viewer.get_unique_node_name(name)
         self._properties['name'] = name
         self.setToolTip('node: {}'.format(name))
-
-    def viewer(self):
-        """
-        return the main viewer.
-
-        Returns:
-            NodeGraphQt.widgets.viewer.NodeViewer: viewer object.
-        """
-        if self.scene():
-            return self.scene().viewer()
 
     def delete(self):
         """

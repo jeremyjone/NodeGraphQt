@@ -3,10 +3,10 @@ import sys
 from PySide2 import QtCore, QtWidgets
 from NodeGraphQt import NodeGraphWidget, Node
 
-# import example nodes from the "nodes" package
-from example.nodes import simple_nodes
-from example.nodes import text_input_node
-from example.nodes import menu_node
+# import example nodes.
+from example_nodes import simple_nodes
+from example_nodes import text_input_node
+from example_nodes import menu_node
 
 
 class NodeGraph(NodeGraphWidget):

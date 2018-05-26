@@ -5,7 +5,7 @@ a learning exercise to write a custom node graph in PySide2.
 
 NodeGraphQt is node graph widget that can be implemented and repurposed into applications that supports PySide2.
 
-![screencap01](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/example/screenshot.png)
+![screencap01](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot.png)
 
 #### Navigation:
 Zoom in/out : `Right Mouse Click + Drag` or `Mouse Scroll Up`/`Mouse Scroll Down`<br/>
@@ -13,7 +13,7 @@ Pan scene : `Middle Mouse Click + Drag` or `Alt + Left Mouse Click + Drag`<br/>
 Fit to screen : `F`
 
 #### Shortcuts:
-![screencap02](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/example/screenshot_menu.png)
+![screencap02](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot_menu.png)
 
 Select all nodes : `Ctrl + A`<br/>
 Delete selected node(s) : `Backspace` or `Delete`<br/>
@@ -27,7 +27,7 @@ Redo action: `Ctrl+Shift+z` or `Command+Shift+z` _(OSX)_ <br/>
 Toggle (enable/disable) node: `d`
 
 #### Node Search
-![screencap03](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/example/screenshot_tab_search.png)
+![screencap03](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot_tab_search.png)
 
 Show node search: `Tab` <br/>
 Create node from selected: `enter`
