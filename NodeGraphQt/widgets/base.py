@@ -1,54 +1,60 @@
 #!/usr/bin/python
 from PySide2 import QtCore, QtWidgets
 
-from .constants import Z_VAL_NODE
+from .constants import Z_VAL_NODE, NODE_COLOR, NODE_BORDER_COLOR, NODE_TEXT_COLOR
+from NodeGraphQt.exceptions import NodePropertyError
 
 
-class AbstractNodeItem(QtWidgets.QGraphicsItem):
+class BaseItem(QtWidgets.QGraphicsItem):
     """
     The abstract base class of a node.
     """
 
     def __init__(self, name='node', parent=None):
-        super(AbstractNodeItem, self).__init__(parent)
+        super(BaseItem, self).__init__(parent)
         self.setFlags(self.ItemIsSelectable | self.ItemIsMovable)
         self.setZValue(Z_VAL_NODE)
-        self.prev_pos = self.pos
+        self._prev_pos = self.pos
+        self._width = 120
+        self._height = 80
         self._properties = {
             'id': hex(id(self)),
-            'name': name.strip(),
-            'color': (48, 58, 69, 255),
-            'border_color': (85, 100, 100, 255),
-            'text_color': (255, 255, 255, 180),
-            'type': 'AbstractBaseNode',
+            'name': name,
+            'color': NODE_COLOR,
+            'border_color': NODE_BORDER_COLOR,
+            'text_color': NODE_TEXT_COLOR,
+            'type': None,
             'selected': False,
             'disabled': False,
         }
-        self._width = 120
-        self._height = 80
 
     def __str__(self):
-        return '{}.{}(\'{}\')'.format(
-            self.__module__, self.__class__.__name__, self.name)
+        return '{}(\'{}\')'.format(self.__class__.__name__, self.name)
 
     def __repr__(self):
-        return '{}.{}(\'{}\')'.format(
-            self.__module__, self.__class__.__name__, self.name)
+        module = self.__module__
+        class_name = self.__class__.__name__
+        return '{}.{}(\'{}\')'.format(module, class_name, self.name)
 
     def boundingRect(self):
         return QtCore.QRectF(0.0, 0.0, self._width, self._height)
 
     def mousePressEvent(self, event):
         self._properties['selected'] = True
-        super(AbstractNodeItem, self).mousePressEvent(event)
+        super(BaseItem, self).mousePressEvent(event)
 
     def setSelected(self, selected):
         self._properties['selected'] = selected
-        super(AbstractNodeItem, self).setSelected(selected)
+        super(BaseItem, self).setSelected(selected)
+
+    def setPos(self, *args, **kwargs):
+        super(BaseItem, self).setPos(*args, **kwargs)
+        self._properties['pos'] = (float(self.scenePos().x()),
+                                   float(self.scenePos().y()))
 
     def pre_init(self, viewer, pos=None):
         """
-        Called before node has been added into the scene.
+        Called before node item has been added into the scene.
 
         Args:
             viewer (NodeGraphQt.widgets.viewer.NodeViewer): main viewer.
@@ -58,13 +64,44 @@ class AbstractNodeItem(QtWidgets.QGraphicsItem):
 
     def post_init(self, viewer, pos=None):
         """
-        Called after node has been added into the scene.
+        Called after node item has been added into the scene.
 
         Args:
             viewer (NodeGraphQt.widgets.viewer.NodeViewer): main viewer
             pos (tuple): the cursor pos if node is called with tab search.
         """
         pass
+
+    def set_item_property(self, name, value):
+        """
+        Set the attributes on the item.
+
+        Args:
+            name (str): name of the item property.
+            value (): value for the property.
+        """
+        if self._properties.get(name):
+            if isinstance(value, type(value)):
+                setattr(self, name, value)
+            else:
+                raise NodePropertyError(
+                    'item property "{}" value must be a {}'
+                    .format(name, type(self.properties[name]).title())
+                )
+        else:
+            raise NodePropertyError(
+                'item "{}" has no property "{}"'.format(self.name, name)
+            )
+
+    @property
+    def item_properties(self):
+        """
+        return all node item properties.
+
+        Returns:
+            dict: {property_name: property_value}
+        """
+        return self._properties
 
     @property
     def id(self):
@@ -147,9 +184,9 @@ class AbstractNodeItem(QtWidgets.QGraphicsItem):
         return float(self.scenePos().x()), float(self.scenePos().y())
 
     @pos.setter
-    def pos(self, pos=[0.0, 0.0]):
-        self.prev_pos = self.scenePos().x(), self.scenePos().y()
-        self.setPos(pos[0], pos[1])
+    def pos(self, pos=None):
+        if pos:
+            self.setPos(pos[0], pos[1])
 
     @property
     def name(self):
@@ -162,40 +199,6 @@ class AbstractNodeItem(QtWidgets.QGraphicsItem):
             name = viewer.get_unique_node_name(name)
         self._properties['name'] = name
         self.setToolTip('node: {}'.format(name))
-
-    @property
-    def properties(self):
-        """
-        Returns:
-            dict: {property_name: property_value}
-        """
-        return self._properties
-
-    def has_property(self, name):
-        return name in self._properties.keys()
-
-    def add_property(self, name, value):
-        if name in self._properties.keys():
-            raise AssertionError('property "{}" already exists!')
-        self._properties[name] = value
-
-    def get_property(self, name):
-        return self._properties.get(name)
-
-    def set_property(self, name, value):
-        class_name = self.__class__.__name__
-        if not self._properties.get(name):
-            raise AssertionError('{} has no property "{}"'
-                                 .format(class_name, name))
-
-        if isinstance(value, type(self._properties[name])):
-            if hasattr(self, name):
-                setattr(self, name, value)
-            else:
-                self._properties[name] = value
-        else:
-            raise TypeError('{} property "{}" has to be a {} type.'
-                            .format(class_name, name, value))
 
     def viewer(self):
         """
@@ -235,7 +238,6 @@ class AbstractNodeItem(QtWidgets.QGraphicsItem):
         serial = {
             self.id: {k: v for k, v in self._properties.items() if k != 'id'}
         }
-        serial[self.id]['pos'] = self.pos
         return serial
 
     def from_dict(self, node_dict):
@@ -249,4 +251,4 @@ class AbstractNodeItem(QtWidgets.QGraphicsItem):
             if hasattr(self, name):
                 setattr(self, name, value)
             else:
-                self.set_property(name, value)
+                self._properties[name] = value

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from .base import BaseItem
 from .constants import Z_VAL_PIPE, NODE_SEL_COLOR, NODE_SEL_BORDER_COLOR
-from .node_abstract import AbstractNodeItem
 from .pipe import Pipe
 from .port import PortItem
 
@@ -16,11 +16,11 @@ class BackdropSizer(QtWidgets.QGraphicsItem):
         self.setFlag(self.ItemSendsScenePositionChanges, True)
         self.setCursor(QtGui.QCursor(QtCore.Qt.SizeFDiagCursor))
         self.setToolTip('double-click auto resize')
-        self._size = size
+        self.__size = size
 
     @property
     def size(self):
-        return self._size
+        return self.__size
 
     def set_pos(self, x, y):
         x -= self._size
@@ -28,7 +28,7 @@ class BackdropSizer(QtWidgets.QGraphicsItem):
         self.setPos(x, y)
 
     def boundingRect(self):
-        return QtCore.QRectF(0.5, 0.5, self._size, self._size)
+        return QtCore.QRectF(0.5, 0.5, self.size, self.size)
 
     def itemChange(self, change, value):
         if change == self.ItemPositionChange:
@@ -47,13 +47,12 @@ class BackdropSizer(QtWidgets.QGraphicsItem):
 
     def paint(self, painter, option, widget):
         painter.save()
-
         rect = self.boundingRect()
-        item = self.parentItem()
-        if item and item.selected:
+        node = self.parentItem()
+        if node and node.selected:
             color = QtGui.QColor(*NODE_SEL_BORDER_COLOR)
         else:
-            color = QtGui.QColor(*item.color)
+            color = QtGui.QColor(*node.color)
             color = color.darker(110)
         path = QtGui.QPainterPath()
         path.moveTo(rect.topRight())
@@ -62,11 +61,10 @@ class BackdropSizer(QtWidgets.QGraphicsItem):
         painter.setBrush(color)
         painter.setPen(QtCore.Qt.NoPen)
         painter.fillPath(path, painter.brush())
-
         painter.restore()
 
 
-class BackdropNodeItem(AbstractNodeItem):
+class BackdropNodeItem(BaseItem):
     """
     Base Backdrop item.
     """
@@ -74,11 +72,11 @@ class BackdropNodeItem(AbstractNodeItem):
     def __init__(self, name='backdrop', text='', parent=None):
         super(BackdropNodeItem, self).__init__(name, parent)
         self.setZValue(Z_VAL_PIPE - 1)
-        self._properties['backdrop_text'] = text
         self.color = (5, 129, 138, 255)
-        self._min_size = 80, 80
         self._sizer = BackdropSizer(self, 20.0)
         self._sizer.set_pos(*self._min_size)
+        self._min_size = 80, 80
+        self._bg_text = text
         self._nodes = [self]
 
     def _combined_rect(self, nodes):
@@ -165,7 +163,7 @@ class BackdropNodeItem(AbstractNodeItem):
             for item in items:
                 if item == self or item == self._sizer:
                     continue
-                if isinstance(item, AbstractNodeItem):
+                if isinstance(item, BaseItem):
                     nodes.append(item)
         return nodes
 
@@ -213,20 +211,20 @@ class BackdropNodeItem(AbstractNodeItem):
 
     @property
     def backdrop_text(self):
-        return self._properties['backdrop_text']
+        return self._bg_text
 
     @backdrop_text.setter
-    def backdrop_text(self, text):
-        self._properties['backdrop_text'] = text
+    def backdrop_text(self, text=None):
+        self._bg_text = str(text)
 
-    @AbstractNodeItem.width.setter
+    @BaseItem.width.setter
     def width(self, width=0.0):
-        AbstractNodeItem.width.fset(self, width)
+        BaseItem.width.fset(self, width)
         self._sizer.set_pos(self._width, self._height)
 
-    @AbstractNodeItem.height.setter
+    @BaseItem.height.setter
     def height(self, height=0.0):
-        AbstractNodeItem.height.fset(self, height)
+        BaseItem.height.fset(self, height)
         self._sizer.set_pos(self._width, self._height)
 
     def to_dict(self):

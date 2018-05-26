@@ -1,11 +1,13 @@
 #!/usr/bin/python
 from PySide2 import QtWidgets
 
-from ..base.node_vendor import NodeVendor
-from ..base.node_plugin import NodePlugin
-from ..widgets.scene import NodeScene
-from ..widgets.viewer import NodeViewer
-from ..interfaces.node import Backdrop
+from .exceptions import NodeTypeError, NodeMenuError, NodePluginError
+from .model import NodeModel
+from .node import BackdropNode
+from .node import NodeBase
+from .vendor import NodeVendor
+from .widgets.scene import NodeScene
+from .widgets.viewer import NodeViewer
 
 
 class NodeGraphWidget(QtWidgets.QWidget):
@@ -15,12 +17,13 @@ class NodeGraphWidget(QtWidgets.QWidget):
         self.setWindowTitle('Node Graph')
         self._scene = NodeScene()
         self._viewer = NodeViewer(self, self._scene)
+        self._nodes = {}
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._viewer)
 
-        if Backdrop not in NodeVendor.nodes.values():
-            NodeVendor.register_node(Backdrop, 'Backdrop')
+        if BackdropNode not in NodeVendor.nodes.values():
+            NodeVendor.register_node(BackdropNode, 'Backdrop')
 
         self._viewer.search_triggered.connect(self._on_search)
 
@@ -54,7 +57,7 @@ class NodeGraphWidget(QtWidgets.QWidget):
             menu (QtWidgets.QMenu): menu object
         """
         if not self._viewer.get_menu(name):
-            raise KeyError('name "{}" already exists.'.format(name))
+            raise NodeMenuError('menu name "{}" already exists.'.format(name))
         self._viewer.add_menu(name, menu)
 
     def get_menu(self, name):
@@ -184,17 +187,18 @@ class NodeGraphWidget(QtWidgets.QWidget):
             node = NodeInstance()
             item = node.item
             item.selected = selected
-
             if name:
                 item.name = name
             if color:
                 r, g, b = color
                 item.color = (r, g, b, 255)
-
+            self._nodes[node.id] = node
             self._viewer.add_node(item, pos)
-
             return node
-        raise Exception('\n\n>> Cannot find node:\t"{}"\n'.format(node_type))
+
+        raise NodePluginError(
+            '\n\n>>> plugin not found:\t"{}"\n'.format(node_type)
+        )
 
     def add_node(self, node):
         """
@@ -203,7 +207,8 @@ class NodeGraphWidget(QtWidgets.QWidget):
         Args:
             node (NodeGraphQt.interface.Node): node instance.
         """
-        assert isinstance(node, NodePlugin), 'node must be a Node instance.'
+        if not isinstance(node, NodeBase):
+            raise NodeTypeError('"{}" must be a Node object.'.format(node))
         self._viewer.add_node(node.item)
 
     def delete_node(self, node):
@@ -213,22 +218,27 @@ class NodeGraphWidget(QtWidgets.QWidget):
         Args:
             node (NodeGraphQt.interface.Node): node object.
         """
-        assert isinstance(node, NodePlugin), 'node must be a Node instance.'
+        if not isinstance(node, NodeBase):
+            raise NodeTypeError('"{}" must be a Node object.'.format(node))
         item = node.item
+        del self._nodes[item.id]
         self._viewer.delete_node(item)
 
-    def all_nodes(self):
+    def all_nodes(self, node_types=None):
         """
         Return all nodes that are in the node graph.
+
+        Args:
+            node_types (list[str]) list of node type to filter.
 
         Returns:
             list[NodeGraphQt.Node]: list of nodes.
         """
         nodes = []
-        for node_item in self._viewer.all_nodes():
-            NodeInstance = NodeVendor.create_node_instance(node_item.type)
-            node = NodeInstance()
-            node.set_item(node_item)
+        for item in self._viewer.all_nodes():
+            if node_types is not None and item.type not in node_types:
+                continue
+            node = self._nodes.get(item.id)
             nodes.append(node)
         return nodes
 
@@ -240,10 +250,8 @@ class NodeGraphWidget(QtWidgets.QWidget):
             list[NodeGraphQt.Node]: list of nodes.
         """
         nodes = []
-        for node_item in self._viewer.selected_nodes():
-            NodeInstance = NodeVendor.create_node_instance(node_item.type)
-            node = NodeInstance()
-            node.set_item(node_item)
+        for item in self._viewer.selected_nodes():
+            node = self._nodes.get(item.id)
             nodes.append(node)
         return nodes
 

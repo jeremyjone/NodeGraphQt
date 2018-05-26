@@ -9,38 +9,29 @@ from .constants import (
     PORT_ACTIVE_BORDER_COLOR,
     Z_VAL_PORT)
 
-PORT_DATA = {
-    'name': 0,
-    'color': 1,
-    'border_color': 2,
-    'border_size': 3,
-    'type': 4,
-    'multi_connection': 5,
-    'display_name': 6
-}
-
 
 class PortItem(QtWidgets.QGraphicsItem):
     """
     Base Port Item.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, name=''):
         super(PortItem, self).__init__(parent)
         self.setAcceptHoverEvents(True)
         self.setFlag(self.ItemIsSelectable, False)
         self.setFlag(self.ItemSendsScenePositionChanges, True)
         self.setZValue(Z_VAL_PORT)
-        self._pipes = []
-        self._width = 10.0
-        self._height = 10.0
-        self._hovered = False
-        self.name = 'port'
-        self.color = (49, 115, 100, 255)
-        self.border_color = (29, 202, 151, 255)
-        self.border_size = 1
-        self.port_type = None
-        self.multi_connection = False
+        self.__pipes = []
+        self.__width = 10.0
+        self.__height = 10.0
+        self.__hovered = False
+        self.__name = name
+        self.__color = (49, 115, 100, 255)
+        self.__border_color = (29, 202, 151, 255)
+        self.__border_size = 1
+        self.__port_type = None
+        self.__multi_connection = False
+        self.__display_name = True
 
     def __str__(self):
         return '{}.PortItem("{}")'.format(self.__module__, self.name)
@@ -49,19 +40,19 @@ class PortItem(QtWidgets.QGraphicsItem):
         return '{}.PortItem("{}")'.format(self.__module__, self.name)
 
     def boundingRect(self):
-        return QtCore.QRectF(0.0, 0.0, self._width, self._height)
+        return QtCore.QRectF(0.0, 0.0, self.__width, self.__height)
 
     def paint(self, painter, option, widget):
         painter.save()
 
-        rect = QtCore.QRectF(0.0, 0.8, self._width, self._height)
+        rect = QtCore.QRectF(0.0, 0.8, self.__width, self.__height)
         painter.setBrush(QtGui.QColor(0, 0, 0, 200))
         painter.setPen(QtGui.QPen(QtGui.QColor(0, 0, 0, 255), 1.8))
         path = QtGui.QPainterPath()
         path.addEllipse(rect)
         painter.drawPath(path)
 
-        if self._hovered:
+        if self.__hovered:
             color = QtGui.QColor(*PORT_HOVER_COLOR)
             border_color = QtGui.QColor(*PORT_HOVER_BORDER_COLOR)
         elif self.connected_pipes:
@@ -92,11 +83,11 @@ class PortItem(QtWidgets.QGraphicsItem):
         super(PortItem, self).mouseReleaseEvent(event)
         
     def hoverEnterEvent(self, event):
-        self._hovered = True
+        self.__hovered = True
         super(PortItem, self).hoverEnterEvent(event)
         
     def hoverLeaveEvent(self, event):
-        self._hovered = False
+        self.__hovered = False
         super(PortItem, self).hoverLeaveEvent(event)
 
     def viewer_start_connection(self):
@@ -113,14 +104,14 @@ class PortItem(QtWidgets.QGraphicsItem):
                 pipe.draw_path(pipe.input_port, self)
 
     def add_pipe(self, pipe):
-        self._pipes.append(pipe)
+        self.__pipes.append(pipe)
 
     def remove_pipe(self, pipe):
-        self._pipes.remove(pipe)
+        self.__pipes.remove(pipe)
 
     @property
     def connected_pipes(self):
-        return self._pipes
+        return self.__pipes
 
     @property
     def connected_ports(self):
@@ -136,67 +127,67 @@ class PortItem(QtWidgets.QGraphicsItem):
 
     @property
     def name(self):
-        return self.data(PORT_DATA['name'])
+        return self.__name
 
     @name.setter
     def name(self, name=''):
-        self.setData(PORT_DATA['name'], name.strip())
+        self.__name = name.strip()
 
     @property
     def display_name(self):
-        return self.data(PORT_DATA['display_name'])
+        return self.__display_name
 
     @display_name.setter
     def display_name(self, display=True):
-        self.setData(PORT_DATA['display_name'], display)
+        self.__display_name = display
 
     @property
     def color(self):
-        return self.data(PORT_DATA['color'])
+        return self.__color
 
     @color.setter
     def color(self, color=(0, 0, 0, 255)):
-        self.setData(PORT_DATA['color'], color)
+        self.__color = color
 
     @property
     def border_color(self):
-        return self.data(PORT_DATA['border_color'])
+        return self.__border_color
 
     @border_color.setter
     def border_color(self, color=(0, 0, 0, 255)):
-        self.setData(PORT_DATA['border_color'], color)
+        self.__border_color = color
 
     @property
     def border_size(self):
-        return self.data(PORT_DATA['border_size'])
+        return self.__border_size
 
     @border_size.setter
     def border_size(self, size=2):
-        self.setData(PORT_DATA['border_size'], size)
+        self.__border_size = size
 
     @property
     def multi_connection(self):
-        return self.data(PORT_DATA['multi_connection'])
+        return self.__multi_connection
 
     @multi_connection.setter
     def multi_connection(self, mode=False):
         conn_type = 'multi' if mode else 'single'
         self.setToolTip('{}: ({})'.format(self.name, conn_type))
-        self.setData(PORT_DATA['multi_connection'], mode)
+        self.__multi_connection = mode
 
     @property
     def port_type(self):
-        return self.data(PORT_DATA['type'])
+        return self.__port_type
 
     @port_type.setter
     def port_type(self, port_type):
-        self.setData(PORT_DATA['type'], port_type)
+        self.__port_type = port_type
 
     def delete(self):
         for pipe in self.connected_pipes:
             pipe.delete()
-            # TODO: not sure if we need this...
-            del pipe
+            # # TODO: not sure if we need this...
+            # del pipe
 
     def connect_to(self, port):
         if not port:

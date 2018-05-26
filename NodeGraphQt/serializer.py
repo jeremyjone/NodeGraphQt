@@ -1,7 +1,9 @@
+#!/usr/bin/python
+
 import json
 import os
 
-from .node_vendor import NodeVendor
+from .vendor import NodeVendor
 
 
 class SessionSerializer(object):

@@ -4,20 +4,20 @@ from collections import OrderedDict
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from serializer import SessionSerializer, SessionLoader
+from vendor import NodeVendor
+from .backdrop import BackdropNodeItem
+from .base import BaseItem
 from .commands import *
 from .constants import (IN_PORT, OUT_PORT,
                         PIPE_LAYOUT_CURVED,
                         PIPE_LAYOUT_STRAIGHT,
                         PIPE_STYLE_DASHED)
-from .node_abstract import AbstractNodeItem
-from .node_backdrop import BackdropNodeItem
 from .pipe import Pipe
 from .port import PortItem
 from .stylesheet import STYLE_QMENU
 from .tab_search import TabSearchWidget
 from .viewer_actions import setup_viewer_actions
-from ..base.node_vendor import NodeVendor
-from ..base.serializer import SessionSerializer, SessionLoader
 
 ZOOM_LIMIT = 12
 
@@ -193,7 +193,7 @@ class NodeViewer(QtWidgets.QGraphicsView):
             return
 
         items = self._items_near(self.mapToScene(event.pos()), None, 20, 20)
-        nodes = [i for i in items if isinstance(i, AbstractNodeItem)]
+        nodes = [i for i in items if isinstance(i, BaseItem)]
 
         # toggle extend node selection.
         if shift_modifier:
@@ -266,7 +266,7 @@ class NodeViewer(QtWidgets.QGraphicsView):
             if shift_modifier and self._prev_selection:
                 for node in self._prev_selection:
                     if node not in self.selected_nodes():
-                        node.selected = True
+                        node.setSelected(True)
 
         self._previous_pos = event.pos()
         super(NodeViewer, self).mouseMoveEvent(event)
@@ -385,7 +385,7 @@ class NodeViewer(QtWidgets.QGraphicsView):
                     [p.delete() for p in port.connected_pipes]
                 return
 
-            node_items = self._items_near(pos, AbstractNodeItem, 3, 3)
+            node_items = self._items_near(pos, BaseItem, 3, 3)
             if node_items:
                 if not isinstance(node_items[0], BackdropNodeItem):
                     return
@@ -517,14 +517,14 @@ class NodeViewer(QtWidgets.QGraphicsView):
     def all_nodes(self):
         nodes = []
         for item in self.scene().items():
-            if isinstance(item, AbstractNodeItem):
+            if isinstance(item, BaseItem):
                 nodes.append(item)
         return nodes
 
     def selected_nodes(self):
         nodes = []
         for item in self.scene().selectedItems():
-            if isinstance(item, AbstractNodeItem):
+            if isinstance(item, BaseItem):
                 nodes.append(item)
         return nodes
 
@@ -536,13 +536,13 @@ class NodeViewer(QtWidgets.QGraphicsView):
         node.post_init(self, pos)
 
     def delete_node(self, node):
-        if isinstance(node, AbstractNodeItem):
+        if isinstance(node, BaseItem):
             self._undo_stack.push(NodeDeletedCmd(node, self.scene()))
 
     def delete_selected_nodes(self):
         self._undo_stack.beginMacro('delete selected node(s)')
         for node in self.selected_nodes():
-            if isinstance(node, AbstractNodeItem):
+            if isinstance(node, BaseItem):
                 self._undo_stack.push(NodeDeletedCmd(node, self.scene()))
         self._undo_stack.endMacro()
 

@@ -1,27 +1,33 @@
 #!/usr/bin/python
-from collections import OrderedDict
-
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from NodeGraphQt import (NodeBaseWidget,
+                         NodeComboBox,
+                         NodeLineEdit,
+                         NodeCheckBox)
+from NodeGraphQt.exceptions import NodeTypeError
+from .base import BaseItem
 from .constants import (IN_PORT, OUT_PORT,
-                        NODE_ICON_SIZE, ICON_NODE_BASE,
-                        NODE_SEL_COLOR, NODE_SEL_BORDER_COLOR,
-                        Z_VAL_NODE, Z_VAL_NODE_WIDGET)
-
-from .node_abstract import AbstractNodeItem
-from .node_widgets import (NodeBaseWidget, NodeComboBox,
-                           NodeLineEdit, NodeCheckBox)
+                        NODE_ICON_SIZE,
+                        ICON_NODE_BASE,
+                        NODE_SEL_COLOR,
+                        NODE_SEL_BORDER_COLOR,
+                        Z_VAL_NODE,
+                        Z_VAL_NODE_WIDGET)
 from .port import PortItem
 
 
 class XDisabledItem(QtWidgets.QGraphicsItem):
+    """
+    node X overlay item.
+    """
 
     def __init__(self, parent=None, text=None):
         super(XDisabledItem, self).__init__(parent)
         self.setZValue(Z_VAL_NODE_WIDGET + 2)
         self.setVisible(False)
-        self.color = (0, 0, 0, 255)
-        self.text = text
+        self.__color = (0, 0, 0, 255)
+        self.__text = text
 
     def boundingRect(self):
         return self.parentItem().boundingRect()
@@ -74,46 +80,46 @@ class XDisabledItem(QtWidgets.QGraphicsItem):
 
             painter.setFont(font)
             font_metrics = QtGui.QFontMetrics(font)
-            font_width = font_metrics.width(self.text)
+            font_width = font_metrics.width(self.__text)
             font_height = font_metrics.height()
             txt_w = font_width * 1.25
             txt_h = font_height * 2.25
-            text_bg_rect = QtCore.QRectF((rect.width() / 2) - (txt_w / 2),
-                                         (rect.height() / 2) - (txt_h / 2),
-                                         txt_w, txt_h)
+            text_bg_rect = QtCore.QRectF(
+                (rect.width() / 2) - (txt_w / 2),
+                (rect.height() / 2) - (txt_h / 2),
+                txt_w, txt_h
+            )
             painter.setPen(QtGui.QPen(QtGui.QColor(255, 0, 0), 0.5))
-            painter.setBrush(QtGui.QColor(*self.color))
+            painter.setBrush(QtGui.QColor(*self.__color))
             painter.drawRoundedRect(text_bg_rect, 2, 2)
 
-            text_rect = QtCore.QRectF((rect.width() / 2) - (font_width / 2),
-                                      (rect.height() / 2) - (font_height / 2),
-                                      txt_w * 2, font_height * 2)
-
+            text_rect = QtCore.QRectF(
+                (rect.width() / 2) - (font_width / 2),
+                (rect.height() / 2) - (font_height / 2),
+                txt_w * 2, font_height * 2
+            )
             painter.setPen(QtGui.QPen(QtGui.QColor(255, 0, 0), 1))
-            painter.drawText(text_rect, self.text)
+            painter.drawText(text_rect, self.__text)
 
         painter.restore()
 
 
-class NodeItem(AbstractNodeItem):
+class NodeItem(BaseItem):
     """
     Base Node item.
     """
 
     def __init__(self, name='node', parent=None):
         super(NodeItem, self).__init__(name, parent)
-        pixmap = QtGui.QPixmap(ICON_NODE_BASE)
-        pixmap = pixmap.scaledToHeight(NODE_ICON_SIZE,
-                                       QtCore.Qt.SmoothTransformation)
         self._properties['icon'] = ICON_NODE_BASE
-        self._icon_item = QtWidgets.QGraphicsPixmapItem(pixmap, self)
-        self._text_item = QtWidgets.QGraphicsTextItem(self.name, self)
-        self._x_item = XDisabledItem(self, 'node disabled')
+        self._icon_item = None
+        self._text_item = None
+        self._x_item = None
         self._input_text_items = {}
         self._output_text_items = {}
         self._input_items = []
         self._output_items = []
-        self._widgets = OrderedDict()
+        self._widgets = {}
 
     def paint(self, painter, option, widget):
         painter.save()
@@ -299,15 +305,17 @@ class NodeItem(AbstractNodeItem):
         """
         Arrange node icon to the default top left of the node.
         """
-        self._icon_item.setPos(2.0, 2.0)
+        if self._icon_item:
+            self._icon_item.setPos(2.0, 2.0)
 
     def arrange_label(self):
         """
         Arrange node label to the default top center of the node.
         """
-        text_rect = self._text_item.boundingRect()
-        text_x = (self._width / 2) - (text_rect.width() / 2)
-        self._text_item.setPos(text_x, 1.0)
+        if self._text_item:
+            text_rect = self._text_item.boundingRect()
+            text_x = (self._width / 2) - (text_rect.width() / 2)
+            self._text_item.setPos(text_x, 1.0)
 
     def arrange_widgets(self):
         """
@@ -427,6 +435,23 @@ class NodeItem(AbstractNodeItem):
             port.setPos(port_x + x, port_y + y)
             text.setPos(text_x + x, text_y + y)
 
+    def pre_init(self, viewer, pos=None):
+        """
+        Called before item has been added into the scene.
+        Initialize the child widgets.
+
+        Args:
+            viewer (NodeGraphQt.widgets.viewer.NodeViewer): main viewer.
+            pos (tuple): the cursor pos if node is called with tab search.
+        """
+        pixmap = QtGui.QPixmap(self._properties['icon'])
+        pixmap = pixmap.scaledToHeight(
+            NODE_ICON_SIZE, QtCore.Qt.SmoothTransformation
+        )
+        self._icon_item = QtWidgets.QGraphicsPixmapItem(pixmap, self)
+        self._text_item = QtWidgets.QGraphicsTextItem(self.name, self)
+        self._x_item = XDisabledItem(self, 'node disabled')
+
     def post_init(self, viewer=None, pos=None):
         """
         Called after node has been added into the scene.
@@ -442,15 +467,17 @@ class NodeItem(AbstractNodeItem):
 
         # update the previous pos.
         self.prev_pos = self.pos
+
         # setup initial base size.
         self._set_base_size()
+
         # set text color when node is initialized.
         self._set_text_color(self.text_color)
+
         # set the tooltip
         self._tooltip_disable(self.disabled)
 
-        # setup node layout
-        # =================
+        # # # node layout arrangement # # #
 
         # arrange label text
         self.arrange_label()
@@ -474,58 +501,72 @@ class NodeItem(AbstractNodeItem):
 
     @icon.setter
     def icon(self, path=None):
-        self._properties['icon'] = path
-        path = path or ICON_NODE_BASE
-        pixmap = QtGui.QPixmap(path)
-        pixmap = pixmap.scaledToHeight(NODE_ICON_SIZE,
-                                       QtCore.Qt.SmoothTransformation)
+        self._properties['icon'] = path or ICON_NODE_BASE
+        if not self.scene():
+            return
+        pixmap = QtGui.QPixmap(self._properties['icon'])
+        pixmap = pixmap.scaledToHeight(
+            NODE_ICON_SIZE, QtCore.Qt.SmoothTransformation
+        )
         self._icon_item.setPixmap(pixmap)
-        if self.scene():
-            self.post_init()
+        self.post_init()
 
-    @AbstractNodeItem.width.setter
+    @BaseItem.width.setter
     def width(self, width=0.0):
         w, h = self.calc_size()
         # self._width = width if width > w else w
         width = width if width > w else w
-        AbstractNodeItem.width.fset(self, width)
+        BaseItem.width.fset(self, width)
 
-    @AbstractNodeItem.height.setter
+    @BaseItem.height.setter
     def height(self, height=0.0):
         w, h = self.calc_size()
         h = 70 if h < 70 else h
         # self._height = height if height > h else h
         height = height if height > h else h
-        AbstractNodeItem.height.fset(self, height)
+        BaseItem.height.fset(self, height)
 
-    @AbstractNodeItem.disabled.setter
+    @BaseItem.disabled.setter
     def disabled(self, state=False):
-        AbstractNodeItem.disabled.fset(self, state)
+        BaseItem.disabled.fset(self, state)
         for n, w in self._widgets.items():
             w.widget.setDisabled(state)
         self._tooltip_disable(state)
         self._x_item.setVisible(state)
 
-    @AbstractNodeItem.selected.setter
+    @BaseItem.selected.setter
     def selected(self, selected=False):
-        AbstractNodeItem.selected.fset(self, selected)
+        BaseItem.selected.fset(self, selected)
         if selected:
             self.hightlight_pipes()
 
-    @AbstractNodeItem.name.setter
+    @BaseItem.name.setter
     def name(self, name=''):
-        AbstractNodeItem.name.fset(self, name)
-        self._text_item.setPlainText(name)
+        BaseItem.name.fset(self, name)
+        if self._text_item:
+            self._text_item.setPlainText(name)
         if self.scene():
             self.post_init()
 
     @property
     def inputs(self):
-        return self._input_items
+        """
+        Return all connected input port items.
+
+        Returns:
+            list[PortItem]: list of connected port items.
+        """
+        return list(self._input_items)
 
     @property
     def outputs(self):
-        return self._output_items
+        """
+        Return all connected output port items.
+
+        Returns:
+            list[PortItem]: list of connected port items.
+        """
+        return list(self._output_items)
 
     def add_input(self, name='input', multi_port=False, display_name=True):
         """
@@ -535,10 +576,9 @@ class NodeItem(AbstractNodeItem):
             display_name (bool): display the port name. 
 
         Returns:
-            PortItem: input item widget
+            PortItem: input port item
         """
-        port = PortItem(self)
-        port.name = name
+        port = PortItem(self, name)
         port.port_type = IN_PORT
         port.multi_connection = multi_port
         port.display_name = display_name
@@ -560,10 +600,9 @@ class NodeItem(AbstractNodeItem):
             display_name (bool): display the port name. 
 
         Returns:
-            PortItem: output item widget
+            PortItem: output port item
         """
-        port = PortItem(self)
-        port.name = name
+        port = PortItem(self, name)
         port.port_type = OUT_PORT
         port.multi_connection = multi_port
         port.display_name = display_name
@@ -579,32 +618,87 @@ class NodeItem(AbstractNodeItem):
 
     @property
     def widgets(self):
+        """
+        return all node widgets.
+
+        Returns:
+            dict: key(widget name), value (widget object)
+        """
         return dict(self._widgets)
 
     def add_combo_menu(self, name='', label='', items=None, tooltip=''):
+        """
+        add a combo box to the node item.
+
+        Args:
+            name (str): name of the widget.
+            label (str): label to be displayed.
+            items (list[str]): list of strings.
+            tooltip (str): widget tooltip.
+        """
         items = items or []
         widget = NodeComboBox(self, name, label, items)
         widget.setToolTip(tooltip)
         self.add_widget(widget)
 
     def add_text_input(self, name='', label='', text='', tooltip=''):
+        """
+        add a line edit widget to the node item.
+
+        Args:
+            name (str): name of the widget.
+            label (str): label to be displayed.
+            text (str): string text.
+            tooltip (str): widget tooltip.
+        """
         widget = NodeLineEdit(self, name, label, text)
         widget.setToolTip(tooltip)
         self.add_widget(widget)
 
     def add_checkbox(self, name='', label='', text='', state=False, tooltip=''):
+        """
+        add a check box to the node item.
+
+        Args:
+            name (str): name of the widget.
+            label (str): label to be displayed.
+            state (bool): true if checkbox is at checked state.
+            tooltip (str): widget tooltip.
+        """
         widget = NodeCheckBox(self, name, label, text, state)
         widget.setToolTip(tooltip)
         self.add_widget(widget)
 
     def add_widget(self, widget):
-        if isinstance(widget, NodeBaseWidget):
-            self._widgets[widget.name] = widget
+        """
+        embed a NodeWidget into the node item.
+
+        Args:
+            widget (NodeBaseWidget): node widget item.
+        """
+        if not isinstance(widget, NodeBaseWidget):
+            raise NodeTypeError(
+                '"{}" is not a instance of node widget object.'
+                .format(str(widget))
+            )
+        self._widgets[widget.name] = widget
 
     def get_widget(self, name):
+        """
+        Return the node widget
+
+        Args:
+            name (str): name of the widget.
+
+        Returns:
+            NodeWidget: node widget.
+        """
         return self._widgets[name]
 
     def delete(self):
+        """
+        remove node item from the scene.
+        """
         for port in self._input_items:
             port.delete()
         for port in self._output_items:

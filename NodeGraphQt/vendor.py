@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from .exceptions import NodeRegistrationError
 
 
 class _NodeVendor(object):
@@ -57,23 +58,25 @@ class _NodeVendor(object):
         node_type = node.type
 
         if self._nodes.get(node_type):
-            raise AssertionError(
+            raise NodeRegistrationError(
                 'Node: {} already exists! '
                 'Please specify a new plugin class name or identifier.'
                 .format(node_type))
         self._nodes[node_type] = node
 
         if self._names.get(node_type):
-            raise AssertionError(
-                'Node Name: {} already exists!'
-                'Please specify a new node name for node: {}'
+            raise NodeRegistrationError(
+                'A node with the name "{}" already exists!'
+                'Please specify a new default name for: {}'
                 .format(name, node_type))
         self._names[name] = node_type
 
         if alias:
             if self._aliases.get(alias):
-                raise AssertionError(
-                    'Node Alias: {} already taken!'.format(alias))
+                raise NodeRegistrationError(
+                    'There\'s already a node registered under the alias "{}".'
+                    'Please specify a new alias'
+                    .format(alias))
             self._aliases[alias] = node_type
 
 

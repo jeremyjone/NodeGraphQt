@@ -26,22 +26,22 @@ class Pipe(QtWidgets.QGraphicsPathItem):
         super(Pipe, self).__init__()
         self.setZValue(Z_VAL_PIPE)
         self.setAcceptHoverEvents(True)
-        self._color = PIPE_DEFAULT_COLOR
-        self._style = PIPE_STYLE_DEFAULT
-        self._active = False
-        self._highlight = False
-        self._input_port = input_port
-        self._output_port = output_port
+        self.__color = PIPE_DEFAULT_COLOR
+        self.__style = PIPE_STYLE_DEFAULT
+        self.__active = False
+        self.__highlight = False
+        self.__input_port = input_port
+        self.__output_port = output_port
 
     def __str__(self):
-        in_name = self._input_port.name if self._input_port else ''
-        out_name = self._output_port.name if self._output_port else ''
+        in_name = self.__input_port.name if self.__input_port else ''
+        out_name = self.__output_port.name if self.__output_port else ''
         return '{}.Pipe(\'{}\', \'{}\')'.format(
             self.__module__, in_name, out_name)
 
     def __repr__(self):
-        in_name = self._input_port.name if self._input_port else ''
-        out_name = self._output_port.name if self._output_port else ''
+        in_name = self.__input_port.name if self.__input_port else ''
+        out_name = self.__output_port.name if self.__output_port else ''
         return '{}.Pipe(\'{}\', \'{}\')'.format(
             self.__module__, in_name, out_name)
 
@@ -56,12 +56,12 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             self.highlight()
 
     def paint(self, painter, option, widget):
-        color = QtGui.QColor(*self._color)
+        color = QtGui.QColor(*self.__color)
         pen_style = PIPE_STYLES.get(self.style)
         pen_width = PIPE_WIDTH
-        if self._active:
+        if self.__active:
             color = QtGui.QColor(*PIPE_ACTIVE_COLOR)
-        elif self._highlight:
+        elif self.__highlight:
             color = QtGui.QColor(*PIPE_HIGHLIGHT_COLOR)
             pen_style = PIPE_STYLES.get(PIPE_STYLE_DEFAULT)
 
@@ -148,26 +148,26 @@ class Pipe(QtWidgets.QGraphicsPathItem):
             return viewer.get_pipe_layout()
 
     def activate(self):
-        self._active = True
+        self.__active = True
         pen = QtGui.QPen(QtGui.QColor(*PIPE_ACTIVE_COLOR), 2)
         pen.setStyle(PIPE_STYLES.get(PIPE_STYLE_DEFAULT))
         self.setPen(pen)
 
     def active(self):
-        return self._active
+        return self.__active
 
     def highlight(self):
-        self._highlight = True
+        self.__highlight = True
         pen = QtGui.QPen(QtGui.QColor(*PIPE_HIGHLIGHT_COLOR), 2)
         pen.setStyle(PIPE_STYLES.get(PIPE_STYLE_DEFAULT))
         self.setPen(pen)
 
     def highlighted(self):
-        return self._highlight
+        return self.__highlight
 
     def reset(self):
-        self._active = False
-        self._highlight = False
+        self.__active = False
+        self.__highlight = False
         pen = QtGui.QPen(QtGui.QColor(*self.color), 2)
         pen.setStyle(PIPE_STYLES.get(self.style))
         self.setPen(pen)
@@ -183,41 +183,41 @@ class Pipe(QtWidgets.QGraphicsPathItem):
 
     @property
     def input_port(self):
-        return self._input_port
+        return self.__input_port
 
     @input_port.setter
     def input_port(self, port):
         if isinstance(port, PortItem) or not port:
-            self._input_port = port
+            self.__input_port = port
         else:
-            self._input_port = None
+            self.__input_port = None
 
     @property
     def output_port(self):
-        return self._output_port
+        return self.__output_port
 
     @output_port.setter
     def output_port(self, port):
         if isinstance(port, PortItem) or not port:
-            self._output_port = port
+            self.__output_port = port
         else:
-            self._output_port = None
+            self.__output_port = None
 
     @property
     def color(self):
-        return self._color
+        return self.__color
 
     @color.setter
     def color(self, color):
-        self._color = color
+        self.__color = color
 
     @property
     def style(self):
-        return self._style
+        return self.__style
 
     @style.setter
     def style(self, style):
-        self._style = style
+        self.__style = style
 
     def delete(self):
         if self.input_port and self.input_port.connected_pipes:
