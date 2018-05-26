@@ -8,29 +8,35 @@ NodeGraphQt is node graph widget that can be implemented and repurposed into app
 ![screencap01](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot.png)
 
 #### Navigation:
-Zoom in/out : `Right Mouse Click + Drag` or `Mouse Scroll Up`/`Mouse Scroll Down`<br/>
-Pan scene : `Middle Mouse Click + Drag` or `Alt + Left Mouse Click + Drag`<br/>
-Fit to screen : `F`
+| viewer action | controls                                                            |
+| ------------- |:-------------------------------------------------------------------:|
+| Zoom in/out   | `Right Mouse Click + Drag` or `Mouse Scroll Up`/`Mouse Scroll Down` |
+| Pan scene     | `Middle Mouse Click + Drag` or `Alt + Left Mouse Click + Drag`      |
+| Fit to screen | `f`                                                                 |
 
 #### Shortcuts:
 ![screencap02](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot_menu.png)
 
-Select all nodes : `Ctrl + A`<br/>
-Delete selected node(s) : `Backspace` or `Delete`<br/>
-Copy node(s): `Ctrl + C` _(copy to clipboard)_<br/>
-Paste node(s): `Ctrl + V` _(paste from clipboard)_<br/>
-Duplicate node(s) : `Alt + C`<br/>
-Save node layout : `Ctrl + S`<br/>
-Open node layout : `Ctrl + O` <br/>
-undo action: `Ctrl+z` or `Command+z` _(OSX)_ <br/>
-Redo action: `Ctrl+Shift+z` or `Command+Shift+z` _(OSX)_ <br/>
-Toggle (enable/disable) node: `d`
+| action                  | hotkey                                            |
+| ----------------------- |:-------------------------------------------------:|
+| Select all nodes        | `Ctrl + a`                                        |
+| Delete selected node(s) | `Backspace` or `Delete`                           |
+| Copy node(s)            | `Ctrl + c` _(copy to clipboard)_                  |
+| Paste node(s)           | `Ctrl + v` _(paste from clipboard)_               |
+| Duplicate node(s)       | `Alt + c`                                         |
+| Save node layout        | `Ctrl + s`                                        |
+| Open node layout        | `Ctrl + o`                                        |
+| Undo action             | `Ctrl + z` or `Command + z` _(OSX)_               |
+| Redo action             | `Ctrl + Shift + z` or `Command+Shift + z` _(OSX)_ |
+| (Enable/Disable) node   | `d`                                               |
 
 #### Node Search
 ![screencap03](https://raw.githubusercontent.com/jchanvfx/NodeGraphQt/master/screenshots/screenshot_tab_search.png)
 
-Show node search: `Tab` <br/>
-Create node from selected: `enter`
+| action                    | hotkey    |
+| ------------------------- |:---------:|
+| Show node search          | `Tab`     |
+| Create node from selected | `enter`   |
 
 #### Example Snippet
 
