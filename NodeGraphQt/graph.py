@@ -2,7 +2,6 @@
 from PySide2 import QtWidgets
 
 from .exceptions import NodeTypeError, NodeMenuError, NodePluginError
-from .model import NodeModel
 from .node import BackdropNode
 from .node import NodeBase
 from .vendor import NodeVendor

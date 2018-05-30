@@ -4,15 +4,15 @@ from collections import OrderedDict
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from serializer import SessionSerializer, SessionLoader
-from vendor import NodeVendor
-from .backdrop import BackdropNodeItem
-from .base import BaseItem
+from NodeGraphQt.serializer import SessionSerializer, SessionLoader
+from NodeGraphQt.vendor import NodeVendor
 from .commands import *
 from .constants import (IN_PORT, OUT_PORT,
                         PIPE_LAYOUT_CURVED,
                         PIPE_LAYOUT_STRAIGHT,
                         PIPE_STYLE_DASHED)
+from .nodes import BackdropNodeItem
+from .nodes import BaseItem
 from .pipe import Pipe
 from .port import PortItem
 from .stylesheet import STYLE_QMENU

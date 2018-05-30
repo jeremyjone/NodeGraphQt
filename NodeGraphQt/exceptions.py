@@ -1,6 +1,11 @@
 #!/usr/bin/python
 
 
+class NodeError(Exception):
+    def __init__(self, message):
+        super(NodeError, self).__init__(message)
+
+
 class NodeTypeError(Exception):
     def __init__(self, message):
         super(NodeTypeError, self).__init__(message)

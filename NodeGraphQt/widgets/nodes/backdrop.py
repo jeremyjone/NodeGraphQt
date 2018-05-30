@@ -1,10 +1,12 @@
 #!/usr/bin/python
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from NodeGraphQt.widgets.constants import (Z_VAL_PIPE,
+                                           NODE_SEL_COLOR,
+                                           NODE_SEL_BORDER_COLOR)
+from NodeGraphQt.widgets.pipe import Pipe
+from NodeGraphQt.widgets.port import PortItem
 from .base import BaseItem
-from .constants import Z_VAL_PIPE, NODE_SEL_COLOR, NODE_SEL_BORDER_COLOR
-from .pipe import Pipe
-from .port import PortItem
 
 
 class BackdropSizer(QtWidgets.QGraphicsItem):

@@ -5,16 +5,16 @@ from NodeGraphQt import (NodeBaseWidget,
                          NodeComboBox,
                          NodeLineEdit,
                          NodeCheckBox)
-from NodeGraphQt.exceptions import NodeTypeError
+from NodeGraphQt.exceptions import NodeError, NodeTypeError
+from NodeGraphQt.widgets.constants import (IN_PORT, OUT_PORT,
+                                           NODE_ICON_SIZE,
+                                           ICON_NODE_BASE,
+                                           NODE_SEL_COLOR,
+                                           NODE_SEL_BORDER_COLOR,
+                                           Z_VAL_NODE,
+                                           Z_VAL_NODE_WIDGET)
+from NodeGraphQt.widgets.port import PortItem
 from .base import BaseItem
-from .constants import (IN_PORT, OUT_PORT,
-                        NODE_ICON_SIZE,
-                        ICON_NODE_BASE,
-                        NODE_SEL_COLOR,
-                        NODE_SEL_BORDER_COLOR,
-                        Z_VAL_NODE,
-                        Z_VAL_NODE_WIDGET)
-from .port import PortItem
 
 
 class XDisabledItem(QtWidgets.QGraphicsItem):
@@ -680,6 +680,11 @@ class NodeItem(BaseItem):
             raise NodeTypeError(
                 '"{}" is not a instance of node widget object.'
                 .format(str(widget))
+            )
+        elif widget.name in self.widgets.keys():
+            raise NodeError(
+                'Node widget name "{}" already taken.'
+                .format(widget.name)
             )
         self._widgets[widget.name] = widget
 

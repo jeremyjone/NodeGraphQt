@@ -1,12 +1,16 @@
 #!/usr/bin/python
+from PySide2 import QtCore
+
 from .exceptions import NodePropertyError
 
 
-class NodeModel(object):
+class NodeModel(QtCore.QObject):
+
+    property_updated = QtCore.Signal(str, object)
 
     def __init__(self, node):
         node_item = node._node()
-        for node_id, node_props in node_item.items():
+        for node_id, node_props in node_item.to_dict():
             self._id = node_id
             self._properties = node_props
 
@@ -22,6 +26,7 @@ class NodeModel(object):
     def set_property(self, name, value):
         if self._properties.get(name):
             self._properties[name] = value
+            self.property_updated.emit(name, value)
         else:
             raise NodePropertyError(
                 'no property "{}" in NodeModel'.format(name)

@@ -1,11 +1,10 @@
 #!/usr/bin/python
-from NodeGraphQt import NodeBaseWidget
 from .exceptions import NodeTypeError
 from .model import NodeModel
 from .port import Port
-from .widgets.backdrop import BackdropNodeItem
-from .widgets.base import BaseItem
-from .widgets.node import NodeItem
+from widgets.nodes.backdrop import BackdropNodeItem
+from widgets.nodes.base import BaseItem
+from widgets.nodes.node import NodeItem
 
 
 class classproperty(object):
@@ -58,7 +57,7 @@ class NodeBase(object):
         self._item.type = self.type
         self._item.name = self.NODE_NAME
 
-    def set_model(self, model=None):
+    def _set_model(self, model=None):
         self._model = model
 
     @property
@@ -189,7 +188,17 @@ class NodeBase(object):
         Returns:
             dict: a dictionary of node properties.
         """
-        return self._node.properties
+        return self._model.properties
+
+    # def add_property(self, name, value):
+    #     """
+    #     Add a new property to node object.
+    #
+    #     Args:
+    #         name (str): property name.
+    #         value (): default property value.
+    #     """
+    #     self._model.add_property(name, value)
 
     def get_property(self, name):
         """
@@ -282,7 +291,6 @@ class Node(NodeBase):
     def __init__(self):
         super(Node, self).__init__()
         self.set_item(NodeItem())
-        self.set_model(NodeModel(self))
 
     def set_icon(self, icon=None):
         """
@@ -364,11 +372,6 @@ class Node(NodeBase):
         Args:
             widget (NodeGraphQt.NodeBaseWidget): node widget.
         """
-        name = widget.name
-        if not isinstance(widget, NodeBaseWidget):
-            raise TypeError('Object must be a instance of a NodeBaseWidget')
-        if name in self._node.widgets.keys():
-            raise KeyError('widget name "{}" already exists'.format(name))
         self._node.add_widget(widget)
 
     def get_widget(self, name):
@@ -469,7 +472,6 @@ class BackdropNode(NodeBase):
     def __init__(self):
         super(BackdropNode, self).__init__()
         self.set_item(BackdropNodeItem())
-        self.set_model(NodeModel(self))
 
     def set_text(self, text):
         """
