@@ -2,10 +2,10 @@
 from PySide2 import QtCore, QtWidgets
 
 from NodeGraphQt.exceptions import NodePropertyError
-from NodeGraphQt.widgets.constants import (Z_VAL_NODE,
-                                           NODE_COLOR,
-                                           NODE_BORDER_COLOR,
-                                           NODE_TEXT_COLOR)
+from .constants import (Z_VAL_NODE,
+                        NODE_COLOR,
+                        NODE_BORDER_COLOR,
+                        NODE_TEXT_COLOR)
 
 
 class BaseItem(QtWidgets.QGraphicsItem):

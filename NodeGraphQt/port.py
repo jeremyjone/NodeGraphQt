@@ -30,7 +30,7 @@ class Port(object):
         return hash((self.type(), self.node().id()))
 
     @property
-    def __port(self):
+    def _port(self):
         """
         returns the PortItem() used in the scene.
 
@@ -46,7 +46,7 @@ class Port(object):
         Returns:
             str: port name.
         """
-        return self.__port.name
+        return self._port.name
 
     def node(self):
         """
@@ -64,7 +64,7 @@ class Port(object):
         Returns:
             str: 'in' = input port, 'out' = output port.
         """
-        return self.__port.port_type
+        return self._port.port_type
 
     def color(self):
         """
@@ -73,7 +73,7 @@ class Port(object):
         Returns:
             tuple: (r, g, b) from 0-255 range.
         """
-        r, g, b, a = self.__port.color
+        r, g, b, a = self._port.color
         return r, g, b
 
     def set_color(self, r=0, g=0, b=0):
@@ -86,34 +86,34 @@ class Port(object):
             b (int): blue value 0-255 range.
         """
 
-        self.__port.color = (r, g, b, 255)
+        self._port.color = (r, g, b, 255)
 
     def connected_pipes(self):
         """
         Return all connected pipes.
 
         Returns:
-            list[NodeGraphQt.interfaces.Pipe]: list of pipe instances.
+            list[NodeGraphQt.Pipe]: list of pipe instances.
         """
-        return [Pipe(p) for p in self.__port.connected_pipes]
+        return [Pipe(p) for p in self._port.connected_pipes]
 
     def connected_ports(self):
         """
         Returns all connected ports.
 
         Returns:
-            list[NodeGraphQt.interfaces.Port]: list of connected ports.
+            list[NodeGraphQt.Port]: list of connected ports.
         """
-        return [Port(p.node, p) for p in self.__port.connected_ports]
+        return [Port(p.node, p) for p in self._port.connected_ports]
 
     def connect_to(self, port=None):
         """
         Creates a pipe and connects it to the port with a connection.
 
         Args:
-            port (NodeGraphQt.interfaces.Port): port object.
+            port (NodeGraphQt.Port): port object.
         """
-        self.__port.connect_to(port.item)
+        self._port.connect_to(port._port)
 
 
 class Pipe(object):

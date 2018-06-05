@@ -6,13 +6,13 @@ from PySide2 import QtGui, QtCore, QtWidgets
 
 from NodeGraphQt.serializer import SessionSerializer, SessionLoader
 from NodeGraphQt.vendor import NodeVendor
+from .backdrop import BackdropNodeItem
+from .base import BaseItem
 from .commands import *
 from .constants import (IN_PORT, OUT_PORT,
                         PIPE_LAYOUT_CURVED,
                         PIPE_LAYOUT_STRAIGHT,
                         PIPE_STYLE_DASHED)
-from .nodes import BackdropNodeItem
-from .nodes import BaseItem
 from .pipe import Pipe
 from .port import PortItem
 from .stylesheet import STYLE_QMENU
@@ -625,14 +625,13 @@ class NodeViewer(QtWidgets.QGraphicsView):
     def toggle_nodes_disability(self):
         nodes = self.selected_nodes()
         state = not nodes[0].disabled if nodes else False
-        for node in nodes:
-            node.disabled = state
-
         name = 'enable' if state else 'disable'
-        self._undo_stack.beginMacro('{} node(s)'.format(name))
+        # self._undo_stack.beginMacro('{} node(s)'.format(name))
         for node in nodes:
-            self._undo_stack.push(NodeDisabledCmd(node))
-        self._undo_stack.endMacro()
+            print(node.name)
+            # node.disabled = state
+            # self._undo_stack.push(NodeDisabledCmd(node))
+        # self._undo_stack.endMacro()
 
     def connect_ports(self, from_port, to_port):
         if not isinstance(from_port, PortItem):
@@ -741,3 +740,7 @@ class NodeViewer(QtWidgets.QGraphicsView):
 
     def zoom_out(self):
         self.set_zoom(-1)
+
+
+if __name__ == '__main__':
+    viewer = NodeViewer()

@@ -2,9 +2,9 @@
 from .exceptions import NodeTypeError
 from .model import NodeModel
 from .port import Port
-from widgets.nodes.backdrop import BackdropNodeItem
-from widgets.nodes.base import BaseItem
-from widgets.nodes.node import NodeItem
+from widgets.backdrop import BackdropNodeItem
+from widgets.base import BaseItem
+from widgets.node import NodeItem
 
 
 class classproperty(object):
@@ -365,14 +365,14 @@ class Node(NodeBase):
         """
         self._node.add_checkbox(name, label, text, state)
 
-    def add_widget(self, widget):
-        """
-        Embed a custom widget into the node.
-
-        Args:
-            widget (NodeGraphQt.NodeBaseWidget): node widget.
-        """
-        self._node.add_widget(widget)
+    # def add_widget(self, widget):
+    #     """
+    #     Embed a custom widget into the node.
+    #
+    #     Args:
+    #         widget (NodeGraphQt.NodeBaseWidget): node widget.
+    #     """
+    #     self._node.add_widget(widget)
 
     def get_widget(self, name):
         """

@@ -81,24 +81,24 @@ if __name__ == '__main__':
     bar_node.set_pos(-77.0, 17.0)
 
     # create "TextInputNode" node and disable it.
-    text_node = graph.create_node(
-        'com.chantasticvfx.TextInputNode', name='Text Node')
-    text_node.disable()
-    text_node.set_pos(-488.0, -158.0)
+    # text_node = graph.create_node(
+    #     'com.chantasticvfx.TextInputNode', name='Text Node')
+    # text_node.disable()
+    # text_node.set_pos(-488.0, -158.0)
 
-    # create a node with a combobox menu.
-    menu_node = graph.create_node(
-        'com.chantasticvfx.DropdownMenuNode', name='Menu Node')
-    menu_node.set_pos(279.0, -209.0)
-
-    # add a node manually.
-    my_node = MyNode()
-    graph.add_node(my_node)
-    my_node.set_pos(310.0, 10.0)
-
-    # connect the nodes
-    foo_node.set_output(0, bar_node.input(2))
-    menu_node.set_input(0, bar_node.output(1))
-    bar_node.set_input(0, text_node.output(0))
+    # # create a node with a combobox menu.
+    # menu_node = graph.create_node(
+    #     'com.chantasticvfx.DropdownMenuNode', name='Menu Node')
+    # menu_node.set_pos(279.0, -209.0)
+    #
+    # # add a node manually.
+    # my_node = MyNode()
+    # graph.add_node(my_node)
+    # my_node.set_pos(310.0, 10.0)
+    #
+    # # connect the nodes
+    # foo_node.set_output(0, bar_node.input(2))
+    # menu_node.set_input(0, bar_node.output(1))
+    # bar_node.set_input(0, text_node.output(0))
 
     app.exec_()

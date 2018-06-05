@@ -40,4 +40,3 @@ __url__ = 'https://github.com/jchanvfx/NodeGraphQt'
 from .graph import NodeGraphWidget
 from .node import NodeBase, Node, BackdropNode
 from .port import Pipe, Port
-from .widgets.node_widgets import NodeComboBox, NodeBaseWidget, NodeCheckBox, NodeLineEdit

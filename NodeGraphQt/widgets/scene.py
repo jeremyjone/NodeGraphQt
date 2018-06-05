@@ -45,11 +45,11 @@ class NodeScene(QtWidgets.QGraphicsScene):
 
     def drawBackground(self, painter, rect):
         painter.save()
-        color = QtGui.QColor(*self._bg_color)
+        color = QtGui.QColor(*self.__bg_color)
         painter.setRenderHint(QtGui.QPainter.Antialiasing, False)
         painter.setBrush(color)
         painter.drawRect(rect.normalized())
-        if not self._grid:
+        if not self.__grid:
             return
         grid_size = 20
         zoom = self.viewer().get_zoom()

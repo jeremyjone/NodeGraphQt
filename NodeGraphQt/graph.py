@@ -184,7 +184,7 @@ class NodeGraphWidget(QtWidgets.QWidget):
         NodeInstance = NodeVendor.create_node_instance(node_type)
         if NodeInstance:
             node = NodeInstance()
-            item = node.item
+            item = node._node
             item.selected = selected
             if name:
                 item.name = name
@@ -208,7 +208,7 @@ class NodeGraphWidget(QtWidgets.QWidget):
         """
         if not isinstance(node, NodeBase):
             raise NodeTypeError('"{}" must be a Node object.'.format(node))
-        self._viewer.add_node(node.item)
+        self._viewer.add_node(node._node)
 
     def delete_node(self, node):
         """
@@ -219,7 +219,7 @@ class NodeGraphWidget(QtWidgets.QWidget):
         """
         if not isinstance(node, NodeBase):
             raise NodeTypeError('"{}" must be a Node object.'.format(node))
-        item = node.item
+        item = node._node
         del self._nodes[item.id]
         self._viewer.delete_node(item)
 

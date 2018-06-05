@@ -1,10 +1,6 @@
 #!/usr/bin/python
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from NodeGraphQt import (NodeBaseWidget,
-                         NodeComboBox,
-                         NodeLineEdit,
-                         NodeCheckBox)
 from NodeGraphQt.exceptions import NodeError, NodeTypeError
 from NodeGraphQt.widgets.constants import (IN_PORT, OUT_PORT,
                                            NODE_ICON_SIZE,
@@ -13,8 +9,12 @@ from NodeGraphQt.widgets.constants import (IN_PORT, OUT_PORT,
                                            NODE_SEL_BORDER_COLOR,
                                            Z_VAL_NODE,
                                            Z_VAL_NODE_WIDGET)
-from NodeGraphQt.widgets.port import PortItem
 from .base import BaseItem
+from .node_widgets import (NodeBaseWidget,
+                           NodeComboBox,
+                           NodeCheckBox,
+                           NodeLineEdit)
+from .port import PortItem
 
 
 class XDisabledItem(QtWidgets.QGraphicsItem):
@@ -41,13 +41,13 @@ class XDisabledItem(QtWidgets.QGraphicsItem):
                                  rect.top() - (margin / 2),
                                  rect.width() + margin,
                                  rect.height() + margin)
-        pen = QtGui.QPen(QtGui.QColor(*self.color), 8)
+        pen = QtGui.QPen(QtGui.QColor(*self.__color), 8)
         pen.setCapStyle(QtCore.Qt.RoundCap)
         painter.setPen(pen)
         painter.drawLine(dis_rect.topLeft(), dis_rect.bottomRight())
         painter.drawLine(dis_rect.topRight(), dis_rect.bottomLeft())
 
-        bg_color = QtGui.QColor(*self.color)
+        bg_color = QtGui.QColor(*self.__color)
         bg_color.setAlpha(100)
         bg_margin = -0.5
         bg_rect = QtCore.QRectF(dis_rect.left() - (bg_margin / 2),
@@ -74,7 +74,7 @@ class XDisabledItem(QtWidgets.QGraphicsItem):
                 p, QtCore.QSizeF(point_size, point_size))
             painter.drawEllipse(point_rect)
 
-        if self.text:
+        if self.__text:
             font = painter.font()
             font.setPointSize(10)
 
